@@ -61,5 +61,8 @@ func main() {
 	rand.Seed(time.Now().Unix())
 	name := fmt.Sprint(r.Data.Images[rand.Intn(len(r.Data.Images))].Tag, ".jpg")
 	url := fmt.Sprint("https://imgur.com/", name)
-	wallpaper.SetFromURL(url)
+	err = wallpaper.SetFromURL(url)
+	if err != nil {
+		fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
+	}
 }
