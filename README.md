@@ -23,14 +23,14 @@ Build from src:
 git clone github.com/M4cs/walgur
 cd walgur
 go build
-./walgur[.exe] <gallery hash>
+./walgur[.exe] <Imgur Gallery Link or Hash>
 ```
 
 
 ## Usage
 
 ```
-walgur {Gallery Hash}
+walgur <Imgur Gallery Link or Hash>
 ```
 
 This will randomly pick an image and set it!
