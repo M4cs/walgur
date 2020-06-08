@@ -3,7 +3,7 @@ Randomly set your desktop wallpaper from Imgur Galleries!
 
 
 <p align="center">
-  <a href="" align="center"><img src="https://mbcdn.sfo2.digitaloceanspaces.com/walgur.gif"/></a>
+  <img src="https://mbcdn.sfo2.digitaloceanspaces.com/walgur.gif">
 </p>
 
 ## Installation
