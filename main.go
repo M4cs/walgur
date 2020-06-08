@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/reujab/wallpaper"
@@ -17,6 +18,7 @@ var (
 	url      string
 )
 
+// Result of Imgur API
 type Result struct {
 	Data struct {
 		Images []struct {
@@ -32,6 +34,10 @@ func main() {
 		os.Exit(1)
 	}
 	var hash string = args[1]
+	if strings.Contains(hash, "http") {
+		split := strings.Split(hash, "/")
+		hash = split[len(split)-1]
+	}
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://api.imgur.com/3/gallery/album/"+hash, nil)
 	if err != nil {
