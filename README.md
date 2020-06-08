@@ -2,14 +2,15 @@
 Randomly set your desktop wallpaper from Imgur Galleries!
 
 ## Installation
-
-With go:
+Install Go
 
 ```
-go get github.com/M4cs/walgur
+git clone github.com/M4cs/wingur
+cd wingur/
+go build
+mv ./wingur /usr/local/bin/wingur (On Unix/MacOS)
+# Or on windows move the wingur.exe file to somewhere in $PATH
 ```
-
-Or for **Windows only** download the exe in the repo and add to $PATH.
 
 ## Usage
 
