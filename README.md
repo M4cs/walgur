@@ -1,9 +1,11 @@
 # walgur
 Randomly set your desktop wallpaper from Imgur Galleries!
 
+<img src="https://goreportcard.com/badge/github.com/M4cs/walgur">
+
 
 <p align="center">
-  <img src="https://mbcdn.sfo2.digitaloceanspaces.com/walgur.gif">
+  <img src="https://raw.githubusercontent.com/M4cs/walgur/master/preview.gif">
 </p>
 
 ## Installation
