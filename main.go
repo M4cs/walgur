@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/akamensky/argparse"
 	"github.com/reujab/wallpaper"
 )
 
@@ -27,19 +28,51 @@ type Result struct {
 	} `json:"data"`
 }
 
+// SubredditResult of Imgur API
+type SubredditResult struct {
+	Data []struct {
+		Tag string `json:"id"`
+	} `json:"data"`
+}
+
+// TagResult of Imgur API
+type TagResult struct {
+	Data struct {
+		Images []struct {
+			Tag string `json:"id"`
+		} `json:"items"`
+	} `json:"data"`
+}
+
 func main() {
-	var args []string = os.Args
-	if len(args) <= 1 {
-		fmt.Println("Please Add An Imgur Gallery Hash: wallgur.exe {hash}")
+	parser := argparse.NewParser("walgur", "Set your wallpaper randomly from Imgur Galleries, Albums, and Subreddits")
+	url := parser.String("u", "url", &argparse.Options{Required: true, Help: "Imgur URL to grab from."})
+	err := parser.Parse(os.Args)
+	if err != nil {
+		fmt.Print(parser.Usage(err))
+	}
+	urlSplit := strings.Split(*url, "/")
+	typeOfQuery := urlSplit[3]
+	var query string
+	switch typeOfQuery {
+	case "t":
+		query = "gallery/t/" + urlSplit[4] + "/top/all"
+		break
+	case "gallery":
+		query = "gallery/album/" + urlSplit[4]
+		break
+	case "r":
+		query = "gallery/r/" + urlSplit[4] + "/top/all"
+		break
+	case "album":
+		query = "album/" + urlSplit[4] + "/images"
+		break
+	default:
+		fmt.Println("Your URL seems to be invalid. Please enter a subreddit, gallery, or tag URL.")
 		os.Exit(1)
 	}
-	var hash string = args[1]
-	if strings.Contains(hash, "http") {
-		split := strings.Split(hash, "/")
-		hash = split[len(split)-1]
-	}
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://api.imgur.com/3/gallery/album/"+hash, nil)
+	req, err := http.NewRequest("GET", "https://api.imgur.com/3/"+query, nil)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -59,16 +92,60 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	var r Result
-	err = json.Unmarshal([]byte(string(body)), &r)
-	if err != nil {
-		fmt.Println("Unable to decode JSON from Imgur. Please try again!")
+	switch typeOfQuery {
+	case "r":
+		var r SubredditResult
+		err = json.Unmarshal([]byte(string(body)), &r)
+		rand.Seed(time.Now().Unix())
+		name := fmt.Sprint(r.Data[rand.Intn(len(r.Data))].Tag, ".jpg")
+		imageURL := fmt.Sprint("https://imgur.com/", name)
+		err = wallpaper.SetFromURL(imageURL)
+		if err != nil {
+			fmt.Println("Unable To Set Image from URL:", err)
+		}
+		break
+	case "t":
+		var r TagResult
+		err = json.Unmarshal([]byte(string(body)), &r)
+		rand.Seed(time.Now().Unix())
+		name := fmt.Sprint(r.Data.Images[rand.Intn(len(r.Data.Images))].Tag, ".jpg")
+		imageURL := fmt.Sprint("https://imgur.com/", name)
+		err = wallpaper.SetFromURL(imageURL)
+		if err != nil {
+			fmt.Println("Unable To Set Image from URL:", err)
+		}
+		break
+	case "gallery":
+		var r Result
+		err = json.Unmarshal([]byte(string(body)), &r)
+		if err != nil {
+			fmt.Println("Unable to decode JSON from Imgur. Please try again!")
+		}
+		rand.Seed(time.Now().Unix())
+		name := fmt.Sprint(r.Data.Images[rand.Intn(len(r.Data.Images))].Tag, ".jpg")
+		imageURL := fmt.Sprint("https://imgur.com/", name)
+		err = wallpaper.SetFromURL(imageURL)
+		if err != nil {
+			fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
+		}
+		break
+	case "album":
+		var r Result
+		err = json.Unmarshal([]byte(string(body)), &r)
+		if err != nil {
+			fmt.Println("Unable to decode JSON from Imgur. Please try again!")
+		}
+		rand.Seed(time.Now().Unix())
+		name := fmt.Sprint(r.Data.Images[rand.Intn(len(r.Data.Images))].Tag, ".jpg")
+		imageURL := fmt.Sprint("https://imgur.com/", name)
+		err = wallpaper.SetFromURL(imageURL)
+		if err != nil {
+			fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
+		}
+		break
+	default:
+		fmt.Println("I don't know how you got to this point in all honesty.")
+		os.Exit(1)
 	}
-	rand.Seed(time.Now().Unix())
-	name := fmt.Sprint(r.Data.Images[rand.Intn(len(r.Data.Images))].Tag, ".jpg")
-	url := fmt.Sprint("https://imgur.com/", name)
-	err = wallpaper.SetFromURL(url)
-	if err != nil {
-		fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
-	}
+
 }
