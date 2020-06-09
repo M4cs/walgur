@@ -45,10 +45,9 @@ type TagResult struct {
 }
 
 func main() {
-	parser := argparse.NewParser("walgur", "Set your wallpaper randomly from Imgur Galleries, Albums, and Subreddits")
-	var args []string = os.Args[1:]
-	_, found := Find(args, "-s")
+	parser := argparse.NewParser("walgur", "Set your wallpaper randomly from Imgur Galleries, Albums, and Subreddits.")
 	url := parser.String("u", "url", &argparse.Options{Required: true, Help: "Imgur URL to grab from."})
+	var show *bool = parser.Flag("s", "show-bg", &argparse.Options{Required: false, Help: "Show where background is stored", Default: false})
 	err := parser.Parse(os.Args)
 	if err != nil {
 		fmt.Print(parser.Usage(err))
@@ -105,7 +104,7 @@ func main() {
 		if err != nil {
 			fmt.Println("Unable To Set Image from URL:", err)
 		}
-		if found {
+		if *show {
 			background, err := wallpaper.Get()
 			if err != nil {
 				fmt.Println("Couldn't grab background!")
@@ -124,7 +123,7 @@ func main() {
 		if err != nil {
 			fmt.Println("Unable To Set Image from URL:", err)
 		}
-		if found {
+		if *show {
 			background, err := wallpaper.Get()
 			if err != nil {
 				fmt.Println("Couldn't grab background!")
@@ -146,7 +145,7 @@ func main() {
 		if err != nil {
 			fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
 		}
-		if found {
+		if *show {
 			background, err := wallpaper.Get()
 			if err != nil {
 				fmt.Println("Couldn't grab background!")
@@ -168,7 +167,7 @@ func main() {
 		if err != nil {
 			fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
 		}
-		if found {
+		if *show {
 			background, err := wallpaper.Get()
 			if err != nil {
 				fmt.Println("Couldn't grab background!")
@@ -182,14 +181,4 @@ func main() {
 		os.Exit(1)
 	}
 
-}
-
-// Find function to find string in slice
-func Find(slice []string, val string) (int, bool) {
-	for i, item := range slice {
-		if item == val {
-			return i, true
-		}
-	}
-	return -1, false
 }
