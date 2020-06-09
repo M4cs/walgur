@@ -32,7 +32,7 @@ walgur -u <imgur URL> [-s]
 
 `-u <url>` - URL to grab from
 
-`-s` - Sho
+`-s` - Show Background File Path
 
 #### Supports:
 
