@@ -10,27 +10,31 @@ Randomly set your desktop wallpaper from Imgur Galleries!
 
 ## Installation
 
-Get from Go:
-
-```
+```bash
 go get github.com/M4cs/walgur
 go install github.com/M4cs/walgur
 ```
 
-Build from src:
+or build from source
 
-```
+```bash
 git clone github.com/M4cs/walgur
 cd walgur
 go build
-./walgur[.exe] <Imgur Gallery Link or Hash>
+# Move the walgur binary to your $PATH
 ```
-
 
 ## Usage
 
 ```
-walgur <Imgur Gallery Link or Hash>
+walgur -u <imgur URL>
 ```
 
-This will randomly pick an image and set it!
+#### Supports:
+
+- Albums
+- Tags
+- Subreddits
+- Galleries
+
+This will randomly pick an image from said URL and set it as your wallpaper.

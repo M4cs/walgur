@@ -46,6 +46,8 @@ type TagResult struct {
 
 func main() {
 	parser := argparse.NewParser("walgur", "Set your wallpaper randomly from Imgur Galleries, Albums, and Subreddits")
+	var args []string = os.Args[1:]
+	_, found := Find(args, "-s")
 	url := parser.String("u", "url", &argparse.Options{Required: true, Help: "Imgur URL to grab from."})
 	err := parser.Parse(os.Args)
 	if err != nil {
@@ -103,6 +105,14 @@ func main() {
 		if err != nil {
 			fmt.Println("Unable To Set Image from URL:", err)
 		}
+		if found {
+			background, err := wallpaper.Get()
+			if err != nil {
+				fmt.Println("Couldn't grab background!")
+				os.Exit(1)
+			}
+			fmt.Println("Background Stored At:", background)
+		}
 		break
 	case "t":
 		var r TagResult
@@ -113,6 +123,14 @@ func main() {
 		err = wallpaper.SetFromURL(imageURL)
 		if err != nil {
 			fmt.Println("Unable To Set Image from URL:", err)
+		}
+		if found {
+			background, err := wallpaper.Get()
+			if err != nil {
+				fmt.Println("Couldn't grab background!")
+				os.Exit(1)
+			}
+			fmt.Println("Background Stored At:", background)
 		}
 		break
 	case "gallery":
@@ -128,6 +146,14 @@ func main() {
 		if err != nil {
 			fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
 		}
+		if found {
+			background, err := wallpaper.Get()
+			if err != nil {
+				fmt.Println("Couldn't grab background!")
+				os.Exit(1)
+			}
+			fmt.Println("Background Stored At:", background)
+		}
 		break
 	case "album":
 		var r Result
@@ -142,10 +168,28 @@ func main() {
 		if err != nil {
 			fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
 		}
+		if found {
+			background, err := wallpaper.Get()
+			if err != nil {
+				fmt.Println("Couldn't grab background!")
+				os.Exit(1)
+			}
+			fmt.Println("Background Stored At:", background)
+		}
 		break
 	default:
 		fmt.Println("I don't know how you got to this point in all honesty.")
 		os.Exit(1)
 	}
 
+}
+
+// Find function to find string in slice
+func Find(slice []string, val string) (int, bool) {
+	for i, item := range slice {
+		if item == val {
+			return i, true
+		}
+	}
+	return -1, false
 }
