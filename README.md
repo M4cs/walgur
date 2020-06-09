@@ -27,8 +27,12 @@ go build
 ## Usage
 
 ```
-walgur -u <imgur URL>
+walgur -u <imgur URL> [-s]
 ```
+
+`-u <url>` - URL to grab from
+
+`-s` - Sho
 
 #### Supports:
 
