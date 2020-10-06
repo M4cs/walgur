@@ -14,8 +14,8 @@ import (
 )
 
 // getQuery function returns API query type from URL
-func getQuery(url *string) (query string, typeOfQuery string) {
-	urlSplit := strings.Split(*url, "/")
+func getQuery(url string) (query string, typeOfQuery string) {
+	urlSplit := strings.Split(url, "/")
 	typeOfQuery = urlSplit[3]
 	switch typeOfQuery {
 	case "t":
@@ -38,29 +38,58 @@ func getQuery(url *string) (query string, typeOfQuery string) {
 }
 
 // Make Request to Imgur
-func makeQueryRequest(query string) (body string) {
+func makeQueryRequest(query string, website string) (body string) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://api.imgur.com/3/"+query, nil)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	if website == "imgur" {
+		req, err := http.NewRequest("GET", "https://api.imgur.com/3/"+query, nil)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		req.Header.Set("Authorization", "Client-ID ec55a6eb90d209b")
+		res, err := client.Do(req)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		if res.StatusCode == 404 {
+			fmt.Println("Error: Gallery Not Found")
+			os.Exit(1)
+		}
+		b, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		body = string(b)
+	} else if website == "reddit" {
+		if query[len(query)-1:] == "/" {
+			query = query + ".json"
+		} else {
+			query = query + "/.json"
+		}
+		req, err := http.NewRequest("GET", query, nil)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36")
+		res, err := client.Do(req)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		if res.StatusCode == 404 {
+			fmt.Println("Error: Reddit Not Found")
+			os.Exit(1)
+		}
+		b, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		body = string(b)
 	}
-	req.Header.Set("Authorization", "Client-ID ec55a6eb90d209b")
-	res, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	if res.StatusCode == 404 {
-		fmt.Println("Error: Gallery Not Found")
-		os.Exit(1)
-	}
-	b, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	body = string(b)
 	return body
 }
 
@@ -144,6 +173,41 @@ func changeWallpaper(typeOfQuery string, body string, show *bool) {
 			background, err := wallpaper.Get()
 			if err != nil {
 				fmt.Println("Couldn't grab background!")
+				os.Exit(1)
+			}
+			fmt.Println("Background Stored At:", background)
+		}
+		break
+	case "reddit":
+		var r RedditAPIResult
+		err := json.Unmarshal([]byte(string(body)), &r)
+		if err != nil {
+			fmt.Println("Unable to decode JSON from Reddit. Please try again!")
+		}
+		maxLen := len(r.Data.Children)
+		rand.Seed(time.Now().Unix())
+		rand.Intn(maxLen)
+		fileTypes := [2]string{"jpg", "png"}
+		var imageURL string
+		image := false
+		for !image {
+			imageURL = r.Data.Children[rand.Intn(maxLen)].Data.URL
+			ending := imageURL[len(imageURL)-3:]
+			for _, value := range fileTypes {
+				if ending == value {
+					image = true
+
+				}
+			}
+		}
+		err = wallpaper.SetFromURL(imageURL)
+		if err != nil {
+			fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
+		}
+		if *show {
+			background, err := wallpaper.Get()
+			if err != nil {
+				fmt.Println("Couldn't Grab Background")
 				os.Exit(1)
 			}
 			fmt.Println("Background Stored At:", background)

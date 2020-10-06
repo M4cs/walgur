@@ -24,3 +24,14 @@ type TagResult struct {
 		} `json:"items"`
 	} `json:"data"`
 }
+
+// RedditAPIResult of Reddit API
+type RedditAPIResult struct {
+	Data struct {
+		Children []struct {
+			Data struct {
+				URL string `json:"url"`
+			} `json:"data,omitempty"`
+		} `json:"children"`
+	} `json:"data"`
+}
