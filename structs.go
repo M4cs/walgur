@@ -2,10 +2,8 @@ package main
 
 // Result of Imgur API
 type Result struct {
-	Data struct {
-		Images []struct {
-			Tag string `json:"id"`
-		} `json:"images"`
+	Data []struct {
+		Link string `json:"link"`
 	} `json:"data"`
 }
 
@@ -18,10 +16,8 @@ type SubredditResult struct {
 
 // TagResult of Imgur API
 type TagResult struct {
-	Data struct {
-		Images []struct {
-			Tag string `json:"id"`
-		} `json:"items"`
+	Data []struct {
+		Link string `json:"link"`
 	} `json:"data"`
 }
 

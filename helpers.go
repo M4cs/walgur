@@ -119,9 +119,8 @@ func changeWallpaper(typeOfQuery string, body string, show *bool) {
 		var r TagResult
 		err := json.Unmarshal([]byte(string(body)), &r)
 		rand.Seed(time.Now().Unix())
-		name := fmt.Sprint(r.Data.Images[rand.Intn(len(r.Data.Images))].Tag, ".jpg")
-		imageURL := fmt.Sprint("https://imgur.com/", name)
-		err = wallpaper.SetFromURL(imageURL)
+		name := r.Data[rand.Intn(len(r.Data))].Link
+		err = wallpaper.SetFromURL(name)
 		if err != nil {
 			fmt.Println("Unable To Set Image from URL:", err)
 		}
@@ -141,9 +140,8 @@ func changeWallpaper(typeOfQuery string, body string, show *bool) {
 			fmt.Println("Unable to decode JSON from Imgur. Please try again!")
 		}
 		rand.Seed(time.Now().Unix())
-		name := fmt.Sprint(r.Data.Images[rand.Intn(len(r.Data.Images))].Tag, ".jpg")
-		imageURL := fmt.Sprint("https://imgur.com/", name)
-		err = wallpaper.SetFromURL(imageURL)
+		name := r.Data[rand.Intn(len(r.Data))].Link
+		err = wallpaper.SetFromURL(name)
 		if err != nil {
 			fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
 		}
@@ -163,9 +161,8 @@ func changeWallpaper(typeOfQuery string, body string, show *bool) {
 			fmt.Println("Unable to decode JSON from Imgur. Please try again!")
 		}
 		rand.Seed(time.Now().Unix())
-		name := fmt.Sprint(r.Data.Images[rand.Intn(len(r.Data.Images))].Tag, ".jpg")
-		imageURL := fmt.Sprint("https://imgur.com/", name)
-		err = wallpaper.SetFromURL(imageURL)
+		name := r.Data[rand.Intn(len(r.Data))].Link
+		err = wallpaper.SetFromURL(name)
 		if err != nil {
 			fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
 		}
