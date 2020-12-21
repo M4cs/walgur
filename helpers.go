@@ -30,6 +30,9 @@ func getQuery(url string) (query string, typeOfQuery string) {
 	case "album":
 		query = "album/" + urlSplit[4] + "/images"
 		break
+	case "a":
+		query = "album/" + urlSplit[4] + "/images"
+		break
 	default:
 		fmt.Println("Your URL seems to be invalid. Please enter a subreddit, gallery, or tag URL.")
 		os.Exit(1)
@@ -112,7 +115,7 @@ func changeWallpaper(typeOfQuery string, body string, show *bool) {
 				fmt.Println("Couldn't grab background!")
 				os.Exit(1)
 			}
-			fmt.Println("Background Stored At:", background)
+			fmt.Println(background)
 		}
 		break
 	case "t":
@@ -130,7 +133,7 @@ func changeWallpaper(typeOfQuery string, body string, show *bool) {
 				fmt.Println("Couldn't grab background!")
 				os.Exit(1)
 			}
-			fmt.Println("Background Stored At:", background)
+			fmt.Println(background)
 		}
 		break
 	case "gallery":
@@ -151,7 +154,28 @@ func changeWallpaper(typeOfQuery string, body string, show *bool) {
 				fmt.Println("Couldn't grab background!")
 				os.Exit(1)
 			}
-			fmt.Println("Background Stored At:", background)
+			fmt.Println(background)
+		}
+		break
+	case "a":
+		var r Result
+		err := json.Unmarshal([]byte(string(body)), &r)
+		if err != nil {
+			fmt.Println("Unable to decode JSON from Imgur. Please try again!")
+		}
+		rand.Seed(time.Now().Unix())
+		name := r.Data[rand.Intn(len(r.Data))].Link
+		err = wallpaper.SetFromURL(name)
+		if err != nil {
+			fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
+		}
+		if *show {
+			background, err := wallpaper.Get()
+			if err != nil {
+				fmt.Println("Couldn't grab background!")
+				os.Exit(1)
+			}
+			fmt.Println(background)
 		}
 		break
 	case "album":
@@ -172,7 +196,7 @@ func changeWallpaper(typeOfQuery string, body string, show *bool) {
 				fmt.Println("Couldn't grab background!")
 				os.Exit(1)
 			}
-			fmt.Println("Background Stored At:", background)
+			fmt.Println(background)
 		}
 		break
 	case "reddit":
@@ -207,7 +231,7 @@ func changeWallpaper(typeOfQuery string, body string, show *bool) {
 				fmt.Println("Couldn't Grab Background")
 				os.Exit(1)
 			}
-			fmt.Println("Background Stored At:", background)
+			fmt.Println(background)
 		}
 		break
 	default:
