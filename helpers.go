@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -172,12 +171,13 @@ func changeWallpaper(typeOfQuery string, body string, show *bool) {
 	}
 	err = wallpaper.SetFromURL(name)
 	if err != nil {
-		log.Println("Unable To Set Image from URL:", err)
+		fmt.Fprintf(os.Stderr, "Unable To Set Image from URL:%s", err)
 	}
 	if *show {
 		background, err := wallpaper.Get()
 		if err != nil {
-			log.Fatal("Couldn't grab background")
+			fmt.Fprintf(os.Stderr, "Couldn't grab background")
+			os.Exit(1)
 		}
 		fmt.Println(background)
 	}
