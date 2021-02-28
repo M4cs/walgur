@@ -98,110 +98,54 @@ func makeQueryRequest(query string, website string) (body string) {
 
 // changeWallpaper on Desktop
 func changeWallpaper(typeOfQuery string, body string, show *bool) {
+	var (
+		name string
+		err  error
+	)
 	switch typeOfQuery {
 	case "r":
 		var r SubredditResult
-		err := json.Unmarshal([]byte(string(body)), &r)
+		err = json.Unmarshal([]byte(string(body)), &r)
 		rand.Seed(time.Now().Unix())
-		name := fmt.Sprint(r.Data[rand.Intn(len(r.Data))].Tag, ".jpg")
-		imageURL := fmt.Sprint("https://imgur.com/", name)
-		err = wallpaper.SetFromURL(imageURL)
-		if err != nil {
-			fmt.Println("Unable To Set Image from URL:", err)
-		}
-		if *show {
-			background, err := wallpaper.Get()
-			if err != nil {
-				fmt.Println("Couldn't grab background!")
-				os.Exit(1)
-			}
-			fmt.Println(background)
-		}
+		name = fmt.Sprintf("https://imgur.com/%s", fmt.Sprint(r.Data[rand.Intn(len(r.Data))].Tag, ".jpg"))
 		break
 	case "t":
 		var r TagResult
-		err := json.Unmarshal([]byte(string(body)), &r)
+		err = json.Unmarshal([]byte(string(body)), &r)
 		rand.Seed(time.Now().Unix())
-		name := r.Data[rand.Intn(len(r.Data))].Link
+		name = r.Data[rand.Intn(len(r.Data))].Link
 		err = wallpaper.SetFromURL(name)
-		if err != nil {
-			fmt.Println("Unable To Set Image from URL:", err)
-		}
-		if *show {
-			background, err := wallpaper.Get()
-			if err != nil {
-				fmt.Println("Couldn't grab background!")
-				os.Exit(1)
-			}
-			fmt.Println(background)
-		}
 		break
 	case "gallery":
 		var r Result
-		err := json.Unmarshal([]byte(string(body)), &r)
+		err = json.Unmarshal([]byte(string(body)), &r)
 		if err != nil {
 			fmt.Println("Unable to decode JSON from Imgur. Please try again!")
 		}
 		rand.Seed(time.Now().Unix())
-		name := r.Data[rand.Intn(len(r.Data))].Link
-		err = wallpaper.SetFromURL(name)
-		if err != nil {
-			fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
-		}
-		if *show {
-			background, err := wallpaper.Get()
-			if err != nil {
-				fmt.Println("Couldn't grab background!")
-				os.Exit(1)
-			}
-			fmt.Println(background)
-		}
+		name = r.Data[rand.Intn(len(r.Data))].Link
 		break
 	case "a":
 		var r Result
-		err := json.Unmarshal([]byte(string(body)), &r)
+		err = json.Unmarshal([]byte(string(body)), &r)
 		if err != nil {
 			fmt.Println("Unable to decode JSON from Imgur. Please try again!")
 		}
 		rand.Seed(time.Now().Unix())
-		name := r.Data[rand.Intn(len(r.Data))].Link
-		err = wallpaper.SetFromURL(name)
-		if err != nil {
-			fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
-		}
-		if *show {
-			background, err := wallpaper.Get()
-			if err != nil {
-				fmt.Println("Couldn't grab background!")
-				os.Exit(1)
-			}
-			fmt.Println(background)
-		}
+		name = r.Data[rand.Intn(len(r.Data))].Link
 		break
 	case "album":
 		var r Result
-		err := json.Unmarshal([]byte(string(body)), &r)
+		err = json.Unmarshal([]byte(string(body)), &r)
 		if err != nil {
 			fmt.Println("Unable to decode JSON from Imgur. Please try again!")
 		}
 		rand.Seed(time.Now().Unix())
-		name := r.Data[rand.Intn(len(r.Data))].Link
-		err = wallpaper.SetFromURL(name)
-		if err != nil {
-			fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
-		}
-		if *show {
-			background, err := wallpaper.Get()
-			if err != nil {
-				fmt.Println("Couldn't grab background!")
-				os.Exit(1)
-			}
-			fmt.Println(background)
-		}
+		name = r.Data[rand.Intn(len(r.Data))].Link
 		break
 	case "reddit":
 		var r RedditAPIResult
-		err := json.Unmarshal([]byte(string(body)), &r)
+		err = json.Unmarshal([]byte(string(body)), &r)
 		if err != nil {
 			fmt.Println("Unable to decode JSON from Reddit. Please try again!")
 		}
@@ -209,11 +153,10 @@ func changeWallpaper(typeOfQuery string, body string, show *bool) {
 		rand.Seed(time.Now().Unix())
 		rand.Intn(maxLen)
 		fileTypes := [2]string{"jpg", "png"}
-		var imageURL string
 		image := false
 		for !image {
-			imageURL = r.Data.Children[rand.Intn(maxLen)].Data.URL
-			ending := imageURL[len(imageURL)-3:]
+			name = r.Data.Children[rand.Intn(maxLen)].Data.URL
+			ending := name[len(name)-3:]
 			for _, value := range fileTypes {
 				if ending == value {
 					image = true
@@ -221,21 +164,21 @@ func changeWallpaper(typeOfQuery string, body string, show *bool) {
 				}
 			}
 		}
-		err = wallpaper.SetFromURL(imageURL)
-		if err != nil {
-			fmt.Println("Unable to set wallpaper. Please try again or it may not work with your OS.")
-		}
-		if *show {
-			background, err := wallpaper.Get()
-			if err != nil {
-				fmt.Println("Couldn't Grab Background")
-				os.Exit(1)
-			}
-			fmt.Println(background)
-		}
 		break
 	default:
 		fmt.Println("I don't know how you got to this point in all honesty.")
 		os.Exit(1)
+	}
+	err = wallpaper.SetFromURL(name)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable To Set Image from URL:%s", err)
+	}
+	if *show {
+		background, err := wallpaper.Get()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Couldn't grab background")
+			os.Exit(1)
+		}
+		fmt.Println(background)
 	}
 }
